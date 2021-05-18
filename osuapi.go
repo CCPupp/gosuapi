@@ -140,7 +140,7 @@ type Group struct {
 //Complete
 type Playcount struct {
 	StartDate string `json:"start_date"`
-	Count     string `json:"count"`
+	Count     int    `json:"count"`
 }
 
 //Complete

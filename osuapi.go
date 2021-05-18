@@ -1,4 +1,4 @@
-package gosuapi
+package main
 
 import (
 	"bytes"
@@ -9,11 +9,12 @@ import (
 	"time"
 )
 
-const (
-	OSU_CLIENT_ID     = 7340
-	OSU_CLIENT_SECRET = "ahpLTEcMb1shLrsIqqlJOGdwHY0p3rXM5KP6NAXH"
-	REDIRECT_URL      = ""
-)
+var Client ClientData
+
+type ClientData struct {
+	ID     int
+	Secret string
+}
 
 //Complete
 type UserRequest struct {
@@ -38,11 +39,6 @@ type Token struct {
 	Expires_in    int    `json:"expires_in"`
 	Access_token  string `json:"access_token"`
 	Refresh_token string `json:"refresh_token"`
-}
-
-//Complete
-type Users struct {
-	Users []User `json:"users"`
 }
 
 //Complete
@@ -88,7 +84,7 @@ type User struct {
 	Groups                           []Group               `json:"groups"`
 	LovedBeatmapsetCount             int                   `json:"loved_beatmapset_count"`
 	MonthlyPlaycounts                []Playcount           `json:"monthly_playcounts"`
-	Page                             []Page_info           `json:"page"`
+	Page                             Page_info             `json:"page"`
 	PreviousUsernames                []string              `json:"previous_usernames"`
 	RankedAndApprovedBeatmapsetCount int                   `json:"ranked_and_approved_beatmapset_count"`
 	ReplaysWatchedCounts             []ReplaysWatchedCount `json:"replays_watched_counts"`
@@ -206,8 +202,12 @@ type RankHistory_info struct {
 	Data []int  `json:"data"`
 }
 
-func GetUserById(id string, token string) User {
-	url := "https://osu.ppy.sh/api/v2/users/" + id
+func CreateClient(id int, secret string) {
+	Client.ID = id
+	Client.Secret = secret
+}
+func GetUserById(id, mode string, token string) User {
+	url := "https://osu.ppy.sh/api/v2/users/" + id + "/" + mode
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -243,13 +243,13 @@ func GetUserById(id string, token string) User {
 	log.Print("User: " + user.Username)
 	return user
 }
-func GetUserToken(key string) string {
+func GetUserToken(key string, redirectUrl string) string {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(UserRequest{
 		Grant_type:    "authorization_code",
-		Client_id:     OSU_CLIENT_ID,
-		Client_secret: OSU_CLIENT_SECRET,
-		Redirect_uri:  REDIRECT_URL + "/user",
+		Client_id:     Client.ID,
+		Client_secret: Client.Secret,
+		Redirect_uri:  redirectUrl,
 		Code:          key})
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
 	req.Header.Add("Accept", "application/json")
@@ -278,12 +278,11 @@ func GetUserToken(key string) string {
 
 	return token.Access_token
 }
-
 func GetClientToken() string {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(ClientRequest{
-		Client_id:     OSU_CLIENT_ID,
-		Client_secret: OSU_CLIENT_SECRET,
+		Client_id:     Client.ID,
+		Client_secret: Client.Secret,
 		Grant_type:    "client_credentials",
 		Scope:         "public"})
 	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))

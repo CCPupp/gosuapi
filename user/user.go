@@ -1,6 +1,6 @@
 package user
 
-//Complete
+//Complete [Likely will need a rework to account for compact users.]
 type User struct {
 	AvatarURL                        string                `json:"avatar_url"`
 	CountryCode                      string                `json:"country_code"`

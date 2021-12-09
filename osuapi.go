@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CCPupp/gosuapi/beatmap"
 	"github.com/CCPupp/gosuapi/user"
 )
 
@@ -43,48 +44,37 @@ type Token struct {
 	Refresh_token string `json:"refresh_token"`
 }
 
-func CreateClient(id int, secret string) {
-	Client.ID = id
-	Client.Secret = secret
-}
-func GetUserById(id, mode string, token string) user.User {
+var ClientToken Token
+var UserToken Token
+
+// Takes an ID or Username and returns a User struct
+func GetUserById(id, mode string) user.User {
 	url := "https://osu.ppy.sh/api/v2/users/" + id + "/" + mode
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	osuClient := http.Client{
-		Timeout: time.Second * 5, // Timeout after 5 seconds
-	}
-
-	req.Header.Add("Authorization", "Bearer "+token)
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-
-	res, getErr := osuClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
-
+	var body = handleRequest(url)
 	var user user.User
 	jsonErr := json.Unmarshal(body, &user)
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
-	log.Print("User: " + user.Username)
 	return user
 }
-func GetUserToken(key string, redirectUrl string) string {
+
+// Takes an ID and returns a Beatmap struct
+func GetBeatmapById(id string) beatmap.Beatmap {
+	url := "https://osu.ppy.sh/api/v2/beatmaps/" + id
+	var body = handleRequest(url)
+	var beatmap beatmap.Beatmap
+	jsonErr := json.Unmarshal(body, &beatmap)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+	return beatmap
+}
+func CreateClient(id int, secret string) {
+	Client.ID = id
+	Client.Secret = secret
+}
+func SetUserToken(key string, redirectUrl string) {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(UserRequest{
 		Grant_type:    "authorization_code",
@@ -117,9 +107,9 @@ func GetUserToken(key string, redirectUrl string) string {
 		log.Fatal(jsonErr)
 	}
 
-	return token.Access_token
+	UserToken = token
 }
-func GetClientToken() string {
+func SetClientToken() {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(ClientRequest{
 		Client_id:     Client.ID,
@@ -151,5 +141,35 @@ func GetClientToken() string {
 		log.Fatal(jsonErr)
 	}
 
-	return token.Access_token
+	ClientToken = token
+}
+func handleRequest(url string) []byte {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	osuClient := http.Client{
+		Timeout: time.Second * 5, // Timeout after 5 seconds
+	}
+
+	req.Header.Add("Authorization", "Bearer "+ClientToken.Access_token)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+
+	res, getErr := osuClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	return body
 }

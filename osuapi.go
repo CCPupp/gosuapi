@@ -10,11 +10,14 @@ import (
 	"time"
 
 	"github.com/CCPupp/gosuapi/beatmap"
-	"github.com/CCPupp/gosuapi/beatmapset"
+	"github.com/CCPupp/gosuapi/recent"
 	"github.com/CCPupp/gosuapi/user"
 )
 
 var Client ClientData
+
+var ClientToken Token
+var UserToken Token
 
 type ClientData struct {
 	ID     int
@@ -46,9 +49,6 @@ type Token struct {
 	Refresh_token string `json:"refresh_token"`
 }
 
-var ClientToken Token
-var UserToken Token
-
 // Takes an ID or Username and returns a User struct
 func GetUserById(id, mode string) user.User {
 	url := "https://osu.ppy.sh/api/v2/users/" + id + "/" + mode
@@ -59,6 +59,18 @@ func GetUserById(id, mode string) user.User {
 		log.Fatal(jsonErr)
 	}
 	return user
+}
+
+// Takes an ID or Username and returns a list of Recent Events
+func GetUserRecentById(id string) []recent.Event {
+	url := "https://osu.ppy.sh/api/v2/users/" + id + "/recent_activity"
+	var body = handleRequest(url)
+	var events []recent.Event
+	jsonErr := json.Unmarshal(body, &events)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+	return events
 }
 
 // Takes an ID and returns a Beatmap struct
@@ -72,61 +84,6 @@ func GetBeatmapById(id int) beatmap.Beatmap {
 		log.Fatal(jsonErr)
 	}
 	return beatmap
-}
-
-// THIS IS NOT SUPPORTED IN THE API AND WILL NOT WORK
-// Takes an ID and returns a Beatmapset struct
-func GetBeatmapsetById(id int) beatmapset.BeatmapsetCompact {
-	idString := strconv.Itoa(id)
-	url := "https://osu.ppy.sh/api/v2/beatmapsets/" + idString
-	var body = handleRequest(url)
-	var beatmapset beatmapset.BeatmapsetCompact
-	jsonErr := json.Unmarshal(body, &beatmapset)
-	if jsonErr != nil {
-		log.Fatal(jsonErr)
-	}
-	return beatmapset
-}
-
-func CreateClient(id int, secret string) {
-	Client.ID = id
-	Client.Secret = secret
-}
-
-func SetUserToken(key string, redirectUrl string) {
-	url := "https://osu.ppy.sh/oauth/token"
-	var jsonStr, _ = json.Marshal(UserRequest{
-		Grant_type:    "authorization_code",
-		Client_id:     Client.ID,
-		Client_secret: Client.Secret,
-		Redirect_uri:  redirectUrl,
-		Code:          key})
-	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonStr))
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-
-	client := &http.Client{}
-	res, getErr := client.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
-
-	var token Token
-	jsonErr := json.Unmarshal(body, &token)
-	if jsonErr != nil {
-		log.Fatal(jsonErr)
-	}
-
-	UserToken = token
 }
 
 func SetClientToken() {

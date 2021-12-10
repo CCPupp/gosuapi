@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/CCPupp/gosuapi/beatmap"
+	"github.com/CCPupp/gosuapi/beatmapset"
 	"github.com/CCPupp/gosuapi/user"
 )
 
@@ -71,6 +72,20 @@ func GetBeatmapById(id int) beatmap.Beatmap {
 		log.Fatal(jsonErr)
 	}
 	return beatmap
+}
+
+// THIS IS NOT SUPPORTED IN THE API AND WILL NOT WORK
+// Takes an ID and returns a Beatmapset struct
+func GetBeatmapsetById(id int) beatmapset.BeatmapsetCompact {
+	idString := strconv.Itoa(id)
+	url := "https://osu.ppy.sh/api/v2/beatmapsets/" + idString
+	var body = handleRequest(url)
+	var beatmapset beatmapset.BeatmapsetCompact
+	jsonErr := json.Unmarshal(body, &beatmapset)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+	return beatmapset
 }
 
 func CreateClient(id int, secret string) {

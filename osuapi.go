@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/CCPupp/gosuapi/beatmap"
@@ -60,8 +61,9 @@ func GetUserById(id, mode string) user.User {
 }
 
 // Takes an ID and returns a Beatmap struct
-func GetBeatmapById(id string) beatmap.Beatmap {
-	url := "https://osu.ppy.sh/api/v2/beatmaps/" + id
+func GetBeatmapById(id int) beatmap.Beatmap {
+	idString := strconv.Itoa(id)
+	url := "https://osu.ppy.sh/api/v2/beatmaps/" + idString
 	var body = handleRequest(url)
 	var beatmap beatmap.Beatmap
 	jsonErr := json.Unmarshal(body, &beatmap)
@@ -70,10 +72,12 @@ func GetBeatmapById(id string) beatmap.Beatmap {
 	}
 	return beatmap
 }
+
 func CreateClient(id int, secret string) {
 	Client.ID = id
 	Client.Secret = secret
 }
+
 func SetUserToken(key string, redirectUrl string) {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(UserRequest{
@@ -109,6 +113,7 @@ func SetUserToken(key string, redirectUrl string) {
 
 	UserToken = token
 }
+
 func SetClientToken() {
 	url := "https://osu.ppy.sh/oauth/token"
 	var jsonStr, _ = json.Marshal(ClientRequest{
@@ -143,6 +148,7 @@ func SetClientToken() {
 
 	ClientToken = token
 }
+
 func handleRequest(url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

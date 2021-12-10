@@ -61,8 +61,8 @@ func GetUserById(id, mode string) user.User {
 	return user
 }
 
-// Takes an ID or Username, gamemode, fails, and limit and returns a list of Recent Events
-func GetUserRecentById(id, mode string, fails bool, limit int) []recent.Event {
+// Takes an ID or Username, gamemode, fails, and limit and returns a list of Recent Scores
+func GetUserRecentScoresById(id, mode string, fails bool, limit int) []recent.Score {
 	includeFails := "0"
 	if fails {
 		includeFails = "1"
@@ -70,12 +70,12 @@ func GetUserRecentById(id, mode string, fails bool, limit int) []recent.Event {
 	var limitString = strconv.Itoa(limit)
 	url := "https://osu.ppy.sh/api/v2/users/" + id + "/scores/recent?include_fails=" + includeFails + "&mode=" + mode + "&limit=" + limitString
 	var body = handleRequest(url)
-	var events []recent.Event
-	jsonErr := json.Unmarshal(body, &events)
+	var scores []recent.Score
+	jsonErr := json.Unmarshal(body, &scores)
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
-	return events
+	return scores
 }
 
 // Takes an ID and returns a Beatmap struct

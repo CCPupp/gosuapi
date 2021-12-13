@@ -11,7 +11,7 @@ type BeatmapsetCompact struct {
 	PlayCount     int    `json:"play_count"`
 	PreviewURL    string `json:"preview_url"`
 	Source        string `json:"source"`
-	Status        int    `json:"status"`
+	Status        string `json:"status"`
 	Title         string `json:"title"`
 	TitleUnicode  string `json:"title_unicode"`
 	UserID        int    `json:"user_id"`
@@ -29,14 +29,14 @@ type Covers struct {
 	SlimCover2x string `json:"slimcover@2x"`
 }
 
-var StatusValue = map[int]string{
-	-2: "graveyard",
-	-1: "wip",
-	0:  "pending",
-	1:  "ranked",
-	2:  "approved",
-	3:  "qualified",
-	4:  "loved",
+var StatusValue = map[string]string{
+	"-2": "graveyard",
+	"-1": "wip",
+	"0":  "pending",
+	"1":  "ranked",
+	"2":  "approved",
+	"3":  "qualified",
+	"4":  "loved",
 }
 
 func GetRankedStatus(mapset BeatmapsetCompact) string {

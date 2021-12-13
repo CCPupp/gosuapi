@@ -35,7 +35,7 @@ type User struct {
 	Country                          Country_info          `json:"country"`
 	Cover                            Cover_info            `json:"cover"`
 	AccountHistory                   []string              `json:"account_history"`
-	ActiveTournamentBanner           string                `json:"active_tournament_banner"`
+	ActiveTournamentBanner           ProfileBanner         `json:"active_tournament_banner"`
 	Badges                           []Badge               `json:"badges"`
 	FavoriteBeatmapsetCount          int                   `json:"favorite_beatmapset_count"`
 	FollowerCount                    int                   `json:"follower_count"`
@@ -53,6 +53,12 @@ type User struct {
 	UnrankedBeatmapsetCount          int                   `json:"unranked_beatmapset_count"`
 	UserAchievements                 []Achievement         `json:"user_achievements"`
 	RankHistory                      RankHistory_info      `json:"rank_history"`
+}
+
+type ProfileBanner struct {
+	ID           int    `json:"id"`
+	TournamentID int    `json:"tournament_id"`
+	Image        string `json:"image"`
 }
 
 //Complete

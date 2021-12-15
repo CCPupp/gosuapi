@@ -15,6 +15,7 @@ type User struct {
 	PmFriendsOnly                    bool                  `json:"pm_fiends_only"`
 	ProfileColor                     string                `json:"profile_colour"`
 	Username                         string                `json:"username"`
+	CoverURL                         string                `json:"cover_url"`
 	Discord                          string                `json:"discord"`
 	HasSupported                     bool                  `json:"has_supported"`
 	Interests                        string                `json:"interests"`

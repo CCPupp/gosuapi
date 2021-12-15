@@ -77,7 +77,7 @@ type Country_info struct {
 type Cover_info struct {
 	CustomURL string `json:"custom_url"`
 	URL       string `json:"url"`
-	ID        string `json:"id"`
+	ID        int    `json:"id"`
 }
 
 //Complete

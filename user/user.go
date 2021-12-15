@@ -15,7 +15,6 @@ type User struct {
 	PmFriendsOnly                    bool                  `json:"pm_fiends_only"`
 	ProfileColor                     string                `json:"profile_colour"`
 	Username                         string                `json:"username"`
-	CoverURL                         string                `json:"cover_url"`
 	Discord                          string                `json:"discord"`
 	HasSupported                     bool                  `json:"has_supported"`
 	Interests                        string                `json:"interests"`
@@ -77,7 +76,7 @@ type Country_info struct {
 type Cover_info struct {
 	CustomURL string `json:"custom_url"`
 	URL       string `json:"url"`
-	ID        int    `json:"id"`
+	ID        string `json:"id"`
 }
 
 //Complete
